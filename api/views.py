@@ -9,20 +9,14 @@ from .permissions import IsOwner
 
 
 class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwner]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_fields = ['group']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    def get_queryset(self):
-        group_id = self.request.query_params.get('group', None)
-        if group_id is not None:
-            group = get_object_or_404(Group, id=group_id)
-            queryset = group.posts.all()
-        else:
-            queryset = Post.objects.all()
-        return queryset
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -57,7 +51,8 @@ class FollowViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin,
         return self.request.user.following.all()
 
 
-class GroupViewSet(viewsets.ModelViewSet):
+class GroupViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin,
+                   mixins.ListModelMixin):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

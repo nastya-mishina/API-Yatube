@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-
+from django.db.models import UniqueConstraint
 
 User = get_user_model()
 
@@ -9,7 +9,7 @@ class Group(models.Model):
     title = models.CharField(
         verbose_name="Группа",
         max_length=200,
-        help_text="Введите название группы",  # лучше подсказывать, что тут название именно группы
+        help_text="Введите название группы",
     )
     description = models.TextField(
         "Текст",
@@ -79,7 +79,3 @@ class Follow(models.Model):
         on_delete=models.CASCADE,
         related_name="following",
     )
-
-    class Meta:
-        unique_together = ("user", "following")
-
